@@ -43,7 +43,7 @@ def load_vote(url):
 
 	return (url, VoteResult(**ret))
 
-def load_steno(url):
+def load_steno(url, maxcontext = 4):
 	"""Parse stenoprotocol of single senate session. Pass stenoprotocol URL as argument."""
 	r = requests.get(url)
 	page = html.fromstring(r.text)
@@ -91,7 +91,8 @@ def load_steno(url):
 				bookmark = html.urljoin(url, '#'+anchors[0].attrib['name'])
 			vote = load_vote(link)
 			ret.append(VoteInfo(len(ret)+1, vote[0], bookmark,
-				context[-3:-1], vote[1], docname, doclink))
+				context[-1-maxcontext:-1], vote[1], docname,
+				doclink))
 			context = []
 	return ret
 
