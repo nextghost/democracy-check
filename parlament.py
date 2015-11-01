@@ -37,7 +37,7 @@ class VoteResult:
 			('Zdrželi se', self.abstain), ('Tajně', self.secret))
 		for item in data:
 			if item[1]:
-				tmp.append(item[0])
+				tmp.append('{0} ({1})'.format(item[0], len(item[1])))
 				tmp.extend(['- ' + name for name in item[1]])
 				tmp.append('')
 		return '\n'.join(tmp)
