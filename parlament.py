@@ -61,7 +61,7 @@ class VoteInfo:
 		tmp.append('Stenozáznam: {0}'.format(self.stenolink))
 		if self.doclink:
 			tmp.append('{0}: {1}'.format(self.docname, self.doclink))
-		tmp.extend([textcontent(line) for line in self.context])
+		tmp.extend([textcontent(line).strip() for line in self.context])
 		tmp.append('')
 		tmp.append(str(self.result))
 		return '\n'.join(tmp)
@@ -73,7 +73,7 @@ class JSONVoteEncoder(json.JSONEncoder):
 			return o.__dict__
 		if isinstance(o, VoteInfo):
 			tmp = dict(o.__dict__)
-			tmp['context'] = [textcontent(x) for x in o.context]
+			tmp['context'] = [textcontent(x).strip() for x in o.context]
 			return tmp
 		return json.JSONEncoder.default(self, o)
 
