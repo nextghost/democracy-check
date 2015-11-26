@@ -45,22 +45,26 @@ class VoteResult:
 class VoteInfo:
 	"""Information about a vote including links, context and results."""
 	def __init__(self, order, resultlink, stenolink, context, result,
-		docname=None, doclink=None):
+		topic=None, doclinks=[]):
 
 		self.order = order
 		self.resultlink = resultlink
 		self.stenolink = stenolink
 		self.context = context
 		self.result = result
-		self.docname = docname
-		self.doclink = doclink
+		self.topic = topic
+		self.doclinks = doclinks
 
 	def __str__(self):
 		tmp = []
 		tmp.append('Hlasování {0}: {1}'.format(self.order, self.resultlink))
 		tmp.append('Stenozáznam: {0}'.format(self.stenolink))
-		if self.doclink:
-			tmp.append('{0}: {1}'.format(self.docname, self.doclink))
+		if self.topic:
+			tmp.append('Téma: {0}'.format(self.topic))
+
+		for (title, link) in self.doclinks:
+			tmp.append('Dokument {0}: {1}'.format(title, link))
+
 		tmp.extend([textcontent(line).strip() for line in self.context])
 		tmp.append('')
 		tmp.append(str(self.result))

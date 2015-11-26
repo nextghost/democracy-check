@@ -37,7 +37,7 @@ def load_vote(url):
 		ret[key] = [textcontent(n).strip() for n in content.cssselect(css)]
 	return VoteResult(**ret)
 
-def load_steno_page(url, maxcontext = 4, context = [], docname = None, doclink = None):
+def load_steno_page(url, maxcontext = 4, context = [], docname = None, doclinks = []):
 	"""Parse one page of lower house session stenoprotocol. Pass page URL as argument."""
 	r = requests.get(url)
 	page = html.fromstring(r.text)
@@ -75,7 +75,7 @@ def load_steno_page(url, maxcontext = 4, context = [], docname = None, doclink =
 					ret.append(VoteInfo(votenum, link,
 						bookmark,
 						context[-1-maxcontext:-1],
-						vote, docname, doclink))
+						vote, docname, doclinks))
 					context = []
 				# Only a bookmark
 				else:
@@ -83,12 +83,14 @@ def load_steno_page(url, maxcontext = 4, context = [], docname = None, doclink =
 		# Topic/document headline
 		elif line.attrib.get('align') == 'center':
 			doclist = line.xpath('descendant::a')
-			if len(doclist) > 1:
-				raise RuntimeError('Weird link to document "{0}"'.format(docname))
-			elif len(doclist) == 1:
-				docname = textcontent(line).strip().replace('\n', ' ')
-				doclink = html.urljoin(url, doclist[0].attrib['href'])
-				context = []
+			docname = textcontent(line).strip().replace('\n', ' ')
+			doclinks = []
+			context = []
+
+			for link in doclist:
+				title = textcontent(link)
+				tmplink = html.urljoin(url, link.attrib['href'])
+				doclinks.append((title, tmplink))
 
 	# Create argument list for loading next stenoprotocol page
 	navlist = content.cssselect('.document-nav a.next')
@@ -96,7 +98,7 @@ def load_steno_page(url, maxcontext = 4, context = [], docname = None, doclink =
 		nextargs = {'url': html.urljoin(url, navlist[0].attrib['href']),
 			'context': context[-maxcontext:],
 			'maxcontext': maxcontext, 'docname': docname,
-			'doclink': doclink}
+			'doclinks': doclinks}
 	else:
 		nextargs = None
 

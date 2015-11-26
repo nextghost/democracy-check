@@ -56,7 +56,7 @@ def load_steno(url, maxcontext = 4):
 	bookmark = url
 	voteset = set()
 	docname = None
-	doclink = None
+	doclinks = []
 	context = []
 	ret = []
 
@@ -67,10 +67,13 @@ def load_steno(url, maxcontext = 4):
 		if doctitle:
 			doctitle = doctitle[0]
 			docname = textcontent(doctitle)
+			doclinks = []
 			doclist = doctitle.xpath('descendant::a')
-			if len(doclist) != 1:
-				raise RuntimeError('Weird link to document "{0}"'.format(docname))
-			doclink = html.urljoin(url, doclist[0].attrib['href'])
+
+			for link in doclist:
+				title = textcontent(link)
+				tmplink = html.urljoin(url, link.attrib['href'])
+				doclinks.append((title, tmplink))
 
 		# Try to find any vote links and load them
 		context.append(line)
@@ -92,7 +95,7 @@ def load_steno(url, maxcontext = 4):
 			vote = load_vote(link)
 			ret.append(VoteInfo(len(ret)+1, vote[0], bookmark,
 				context[-1-maxcontext:-1], vote[1], docname,
-				doclink))
+				doclinks))
 			context = []
 	return ret
 
